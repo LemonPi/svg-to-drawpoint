@@ -1,0 +1,34 @@
+{
+  "name": "svg-to-drawpoint",
+  "version": "0.1.0",
+  "description": "Turn SVGs into javascript executable by drawpoint to allow powerful manipulation",
+  "private": true,
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "watch": "webpack --watch",
+    "start": "webpack-dev-server --open",
+    "build": "webpack"
+  },
+  "keywords": [],
+  "author": {
+    "name": "Johnson Zhong",
+    "email": "johnsonzhong@hotmail.ca",
+    "url": "http://johnsonzhong.me"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "clean-webpack-plugin": "^0.1.19",
+    "css-loader": "^1.0.0",
+    "csv-loader": "^3.0.2",
+    "file-loader": "^2.0.0",
+    "html-webpack-plugin": "^3.2.0",
+    "style-loader": "^0.23.0",
+    "webpack": "^4.17.1",
+    "webpack-cli": "^3.1.0",
+    "webpack-dev-server": "^3.1.7",
+    "xml-loader": "^1.2.1"
+  },
+  "dependencies": {
+    "canvg": "^1.5.2"
+  }
+}
