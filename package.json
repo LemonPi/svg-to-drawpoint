@@ -29,6 +29,7 @@
     "xml-loader": "^1.2.1"
   },
   "dependencies": {
+    "call-capture": "^0.1.0",
     "canvg": "^1.5.2"
   }
 }
