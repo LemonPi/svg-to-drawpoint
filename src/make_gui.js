@@ -1,8 +1,15 @@
 import * as dat from "dat.gui";
 import capture from "call-capture";
-import {makeInteractiveModal} from "./make_dom";
+import {makeFileUpload, makeInteractiveModal} from "./make_dom";
 
 const capturedCtx = [];
+
+function clearCapture() {
+    for (let ctx of capturedCtx) {
+        ctx.clearQueue();
+    }
+    capturedCtx.length = 0;
+}
 
 export function captureContext() {
     const oldGetContext = HTMLCanvasElement.prototype.getContext;
@@ -13,29 +20,24 @@ export function captureContext() {
     };
 }
 
+
 const toCaptureNames = ["moveTo", "lineTo", "quadraticCurveTo", "bezierCurveTo"];
 const interactiveConversion = {
     draw() {
+        console.log(`${capturedCtx.length} contexts captured`);
         for (let ctx of capturedCtx) {
             const drawCommands = [];
 
             console.log(ctx.queue);
             for (let cmd of ctx.queue) {
+                cmd.execute();
                 if (toCaptureNames.includes(cmd.name)) {
+                    // TODO label the drawpoints numerically in the image
                     drawCommands.push(cmd);
                 }
             }
 
             console.log(drawCommands);
-
-            ctx.clearQueue();
-
-            for (let cmd of drawCommands) {
-                cmd.execute();
-            }
-            ctx.stroke();
-            ctx.executeAll();
-            ctx.clearQueue();
         }
 
         displayInteractiveModal();
@@ -43,10 +45,15 @@ const interactiveConversion = {
     },
     clear() {
         for (let ctx of capturedCtx) {
+            const q = ctx.queue;
+            ctx.queue = [];
             ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
             ctx.executeAll();
-            ctx.clearQueue();
+            ctx.queue = q;
         }
+    },
+    upload() {
+        fileUpload.click();
     }
 };
 
@@ -67,19 +74,46 @@ function displayInteractiveModal(element = gui.domElement, relative = "left") {
 
 let gui;
 let interactiveModal;
+let fileUpload;
 
 function generateGUI(gui) {
     if (gui) {
         gui.destroy();
     }
     gui = new dat.GUI();
+    gui.add(interactiveConversion, "upload").name("upload SVG");
     gui.add(interactiveConversion, "draw");
     gui.add(interactiveConversion, "clear");
+
     return gui;
 }
 
-export function makeGUI() {
+export function makeGUI(drawer) {
+
     gui = generateGUI(gui);
     interactiveModal = makeInteractiveModal();
+    fileUpload = makeFileUpload();
     document.body.appendChild(interactiveModal);
+
+    fileUpload.onchange = handleSVGUpload;
+
+
+    function handleSVGUpload() {
+        console.log("file uploaded");
+        const file = this.files[0];
+
+        if (!file.type.match(/svg/g)) {
+            alert("Only SVGs allowed");
+            return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function (event) {
+            const url = event.target.result;
+            clearCapture();
+            drawer(url);
+        };
+
+        reader.readAsDataURL(file);
+    }
 }

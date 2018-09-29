@@ -5,6 +5,7 @@ export function makeCanvas() {
     canvas.id = "tester";
     canvas.width = 500;
     canvas.height = 500;
+    canvas.style.border = "1px solid black";
     return canvas;
 }
 
@@ -19,6 +20,7 @@ export function makeInteractiveModal() {
         modal.style.visibility = "hidden";
     };
 
+    // TODO make textarea actually a pre.code div to allow code highlighting (highlight.js ?)
     const textArea = document.createElement('textarea');
     textArea.spellcheck = false;
     textArea.value = "drawpoint code will be printed here when you execute";
@@ -33,4 +35,13 @@ export function makeMainContainer() {
     div.style.display = "flex";
     div.style.flexDirection = "row";
     return div;
+}
+
+export function makeFileUpload() {
+    const input = document.createElement('input');
+    input.style.visibility = "hidden";
+    input.type = "file";
+    input.id = "file-upload";
+    input.accept = ".svg";
+    return input;
 }

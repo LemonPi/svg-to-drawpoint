@@ -16,14 +16,18 @@ captureContext();
 
 const container = document.body.appendChild(makeMainContainer());
 const canvas = container.appendChild(makeCanvas());
-makeGUI();
 
-canvg(canvas,
-    SVG,
-    {
-        log            : true,
-        ignoreMouse    : true,
-        ignoreAnimation: true,
-        ignoreClear    : true,
-        // ignoreDimensions: true,
-    });
+function drawSVG(svg) {
+    canvg(canvas,
+        svg,
+        {
+            log            : true,
+            ignoreMouse    : true,
+            ignoreAnimation: true,
+            ignoreClear    : true,
+            // ignoreDimensions: true,
+        });
+}
+
+makeGUI(drawSVG);
+drawSVG(SVG);
