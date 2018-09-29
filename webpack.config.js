@@ -17,6 +17,11 @@ module.exports = {
             title: 'SVG to Drawpoint'
         })
     ],
+    optimization: {
+        splitChunks: {
+            chunks: 'all'
+        }
+    },
     output: {
         filename: '[name].[contenthash].js',
         chunkFilename: "[name].bundle.js",
@@ -27,7 +32,12 @@ module.exports = {
             {
                 test: /\.(png|svg|jpg|gif)$/,
                 use: ['file-loader'],
+            },
+            {
+                test: /\.css$/,
+                use: ['style-loader', 'css-loader']
             }
+
         ]
     }
 };

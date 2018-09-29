@@ -1,0 +1,25 @@
+#interactive_modal {
+    visibility: hidden;
+    z-index: 999;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    top: 0;
+    width: 400px;
+    outline: none;
+    overflow-y: auto;
+}
+
+#interactive_modal_top_bar {
+    padding: 2px;
+    background: crimson;
+    cursor: alias;
+    color: white;
+    text-align: center;
+    font-family: Rockwell, sans-serif;
+    font-size: smaller;
+}
+
+#interactive_modal_top_bar:active {
+    background: cadetblue;
+}

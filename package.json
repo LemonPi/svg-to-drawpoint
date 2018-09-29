@@ -30,6 +30,7 @@
   },
   "dependencies": {
     "call-capture": "^0.1.0",
-    "canvg": "^1.5.2"
+    "canvg": "^1.5.2",
+    "dat.gui": "^0.7.2"
   }
 }
