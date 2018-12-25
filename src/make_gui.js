@@ -11,9 +11,13 @@ function clearCapture() {
     capturedCtx.length = 0;
 }
 
+/**
+ * Replace drawing context factory with one for a captured version to track actions
+ */
 export function captureContext() {
     const oldGetContext = HTMLCanvasElement.prototype.getContext;
     HTMLCanvasElement.prototype.getContext = function () {
+        // forward the canvas 'this' object to the old get context
         const ctx = capture(oldGetContext.apply(this, arguments));
         capturedCtx.push(ctx);
         return ctx;
@@ -22,6 +26,9 @@ export function captureContext() {
 
 
 const toCaptureNames = ["moveTo", "lineTo", "quadraticCurveTo", "bezierCurveTo"];
+/**
+ * GUI elements for interaction on the side
+ */
 const interactiveConversion = {
     draw() {
         console.log(`${capturedCtx.length} contexts captured`);
@@ -88,6 +95,10 @@ function generateGUI(gui) {
     return gui;
 }
 
+/**
+ * Create DAT.GUI interface
+ * @param drawer function for drawing and rendering a SVG url
+ */
 export function makeGUI(drawer) {
 
     gui = generateGUI(gui);

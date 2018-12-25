@@ -5,10 +5,10 @@ import {captureContext, makeGUI} from "./make_gui";
 
 
 // TODO take in scale
-// TODO take in coordinate of first point
-// TODO capture only the position of the points relative to the first point
+// TODO take in coordinate of n "fixed" points
+// TODO capture only the position of the points relative to the previous fixed points
 // TODO print results in textArea
-// TODO consider using dat.GUI for this GUI
+// TODO describe how to create compatible SVGs (inkscape?)
 
 // ------------ create GUI -------------------
 
