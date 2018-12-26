@@ -1,7 +1,8 @@
 import * as dat from "dat.gui";
 import capture from "call-capture";
-import {makeFileUpload, makeInteractiveModal} from "./make_dom";
+import {changeInteractiveModalText, makeFileUpload, makeInteractiveModal} from "./make_dom";
 import {extractDrawpoint} from "./extract_drawpoint";
+import {generateText} from "./generate_text";
 
 // captured drawing context
 // each canvas can only have 1 active drawing context, so it's safe to assume there'll only be 1
@@ -51,6 +52,9 @@ let drawpoints = [];
  */
 const interactiveConversion = {
     scale: 1,
+    /**
+     * Do most of the main action such as drawing all that needs to be drawn and generating text
+     */
     draw() {
         drawCommands = [];
         preambleCommands = [];
@@ -77,11 +81,12 @@ const interactiveConversion = {
         console.log(drawCommands);
         console.log(drawpoints);
         // now we have information on what to draw we can add GUI for drawing
+        // assumes each draw command results in one draw point
         generateFixedPointGUI(drawCommands.length);
 
         drawFixedPoints();
         displayInteractiveModal();
-
+        this.updateText();
     },
     clear() {
         const q = ctx.queue;
@@ -93,6 +98,9 @@ const interactiveConversion = {
     upload() {
         fileUpload.click();
     },
+    updateText() {
+        changeInteractiveModalText(generateText(drawpoints, fixedPts, this.scale));
+    }
 };
 
 function drawFixedPoints() {
@@ -127,7 +135,8 @@ const fixedPointInteraction = {
     add() {
         fixedPts[this.order] = this.name;
         // label on canvas
-        drawFixedPoints();
+        interactiveConversion.clear();
+        interactiveConversion.draw();
     },
     remove() {
         fixedPts[this.order] = undefined;
@@ -165,7 +174,9 @@ function generateGUI(gui) {
     gui.add(interactiveConversion, "upload").name("upload SVG");
     gui.add(interactiveConversion, "draw");
     gui.add(interactiveConversion, "clear");
-    gui.add(interactiveConversion, "scale").min(0).max(3);
+    gui.add(interactiveConversion, "scale").min(0).max(3).onChange(function() {
+        interactiveConversion.updateText();
+    });
 
     return gui;
 }

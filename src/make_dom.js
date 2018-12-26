@@ -9,6 +9,7 @@ export function makeCanvas() {
     return canvas;
 }
 
+let textArea;
 export function makeInteractiveModal() {
     const modal = document.createElement('div');
     modal.id = "interactive_modal";
@@ -21,14 +22,19 @@ export function makeInteractiveModal() {
     };
 
     // TODO make textarea actually a pre.code div to allow code highlighting (highlight.js ?)
-    // TODO create API to change text
-    const textArea = document.createElement('textarea');
+    textArea = document.createElement('textarea');
     textArea.spellcheck = false;
     textArea.value = "drawpoint code will be printed here when you execute";
+    textArea.style.height = "10em";
+    // TODO add button to copy content of code into clipboard
 
     modal.appendChild(closeModal);
     modal.appendChild(textArea);
     return modal;
+}
+
+export function changeInteractiveModalText(textValue) {
+    textArea.value = textValue;
 }
 
 export function makeMainContainer() {
