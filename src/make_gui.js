@@ -47,6 +47,7 @@ let postCommands = [];
  * GUI elements for interaction on the side
  */
 const interactiveConversion = {
+    scale: 1,
     draw() {
         drawCommands = [];
         preambleCommands = [];
@@ -116,6 +117,7 @@ function drawFixedPoints() {
     ctx.resumeCapture();
 }
 
+// assume fixed points are given to us (including control points)
 const fixedPts = [];
 const fixedPointInteraction = {
     order: 0,
@@ -161,6 +163,7 @@ function generateGUI(gui) {
     gui.add(interactiveConversion, "upload").name("upload SVG");
     gui.add(interactiveConversion, "draw");
     gui.add(interactiveConversion, "clear");
+    gui.add(interactiveConversion, "scale").min(0).max(3);
 
     return gui;
 }

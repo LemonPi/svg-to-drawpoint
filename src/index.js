@@ -4,7 +4,7 @@ import {makeCanvas, makeMainContainer} from "./make_dom";
 import {captureContext, makeGUI} from "./make_gui";
 
 
-// TODO take in scale
+// TODO use scale input to scale output text
 // TODO capture only the position of the points relative to the previous fixed points
 // TODO print results in textArea
 
