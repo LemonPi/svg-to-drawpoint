@@ -1,6 +1,7 @@
 import * as dat from "dat.gui";
 import capture from "call-capture";
 import {makeFileUpload, makeInteractiveModal} from "./make_dom";
+import {extractDrawpoint} from "./extract_drawpoint";
 
 // captured drawing context
 // each canvas can only have 1 active drawing context, so it's safe to assume there'll only be 1
@@ -39,10 +40,12 @@ function generateFixedPointGUI(numDrawpoints) {
     fixedPointFolder.add(fixedPointInteraction, "remove");
 }
 
+// TODO consider the other drawing methods like arc
 const toCaptureNames = ["moveTo", "lineTo", "quadraticCurveTo", "bezierCurveTo"];
 let drawCommands = [];
 let preambleCommands = [];
 let postCommands = [];
+let drawpoints = [];
 /**
  * GUI elements for interaction on the side
  */
@@ -52,6 +55,7 @@ const interactiveConversion = {
         drawCommands = [];
         preambleCommands = [];
         postCommands = [];
+        drawpoints = [];
 
         let startedDrawing = false;
 
@@ -61,8 +65,8 @@ const interactiveConversion = {
             // actual drawing commands are in between pre and post commands
             if (toCaptureNames.includes(cmd.name)) {
                 startedDrawing = true;
-                // TODO label the drawpoints numerically in the image
                 drawCommands.push(cmd);
+                drawpoints.push(extractDrawpoint(cmd));
             } else if (startedDrawing === false) {
                 preambleCommands.push(cmd);
             } else {
@@ -71,6 +75,7 @@ const interactiveConversion = {
         }
 
         console.log(drawCommands);
+        console.log(drawpoints);
         // now we have information on what to draw we can add GUI for drawing
         generateFixedPointGUI(drawCommands.length);
 
@@ -102,12 +107,9 @@ function drawFixedPoints() {
         if (!name) {
             return;
         }
-        const cmd = drawCommands[index];
-        const x = cmd.args[0];
-        const y = cmd.args[1];
+        const x = drawpoints[index].x;
+        const y = drawpoints[index].y;
         const s = 1;
-        // TODO extract x,y from the cmd (every command adds 1 drawpoint)
-        // TODO what about
         ctx.fillRect(x-s/2, y-s/2, s, s);
         ctx.fillText(name, x+2*s, y);
     });
