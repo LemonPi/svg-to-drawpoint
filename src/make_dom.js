@@ -21,6 +21,7 @@ export function makeInteractiveModal() {
     };
 
     // TODO make textarea actually a pre.code div to allow code highlighting (highlight.js ?)
+    // TODO create API to change text
     const textArea = document.createElement('textarea');
     textArea.spellcheck = false;
     textArea.value = "drawpoint code will be printed here when you execute";

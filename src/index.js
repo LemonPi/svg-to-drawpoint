@@ -5,7 +5,6 @@ import {captureContext, makeGUI} from "./make_gui";
 
 
 // TODO take in scale
-// TODO take in coordinate of n input "fixed" points
 // TODO capture only the position of the points relative to the previous fixed points
 // TODO print results in textArea
 

@@ -29,7 +29,7 @@
     "xml-loader": "^1.2.1"
   },
   "dependencies": {
-    "call-capture": "^0.1.0",
+    "call-capture": "^0.2.1",
     "canvg": "^1.5.2",
     "dat.gui": "^0.7.2"
   }
