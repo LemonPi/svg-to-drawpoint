@@ -26,6 +26,7 @@ export function makeInteractiveModal() {
     textArea.spellcheck = false;
     textArea.value = "drawpoint code will be printed here when you execute";
     textArea.style.height = "10em";
+    textArea.style.font = "0.7em consolas";
     // TODO add button to copy content of code into clipboard
 
     modal.appendChild(closeModal);
