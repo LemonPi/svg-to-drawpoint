@@ -2,8 +2,9 @@
  * Extract a drawpoint from a command
  * @param cmd
  */
-export function extractDrawpoint(cmd) {
+export function extractDrawpoints(cmd) {
     const dp = {};
+    // TODO other commands result in multiple drawpoints such as arc or rect
     switch(cmd.name) {
         case "moveTo": // dropdown
         case "lineTo":
@@ -24,5 +25,5 @@ export function extractDrawpoint(cmd) {
         default:
             alert(`Unhandled drawpoint type from ${cmd.name} type command`);
     }
-    return dp;
+    return [dp];
 }

@@ -1,7 +1,7 @@
 import * as dat from "dat.gui";
 import capture from "call-capture";
 import {changeInteractiveModalText, makeFileUpload, makeInteractiveModal} from "./make_dom";
-import {extractDrawpoint} from "./extract_drawpoint";
+import {extractDrawpoints} from "./extract_drawpoint";
 import {generateText} from "./generate_text";
 
 // captured drawing context
@@ -70,7 +70,7 @@ const interactiveConversion = {
             if (toCaptureNames.includes(cmd.name)) {
                 startedDrawing = true;
                 drawCommands.push(cmd);
-                drawpoints.push(extractDrawpoint(cmd));
+                drawpoints.push(...extractDrawpoints(cmd));
             } else if (startedDrawing === false) {
                 preambleCommands.push(cmd);
             } else {
