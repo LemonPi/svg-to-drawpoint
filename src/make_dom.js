@@ -27,10 +27,19 @@ export function makeInteractiveModal() {
     textArea.value = "drawpoint code will be printed here when you execute";
     textArea.style.height = "10em";
     textArea.style.font = "0.7em consolas";
-    // TODO add button to copy content of code into clipboard
+
+    // button to copy content
+    const copy = document.createElement('button');
+    copy.textContent = "Copy to Clipboard";
+    copy.id = "copy_button";
+    copy.onclick = function() {
+        textArea.select();
+        document.execCommand("copy");
+    };
 
     modal.appendChild(closeModal);
     modal.appendChild(textArea);
+    modal.appendChild(copy);
     return modal;
 }
 
