@@ -45,6 +45,7 @@ function generateFixedPointGUI(numDrawpoints) {
 const toCaptureNames = ["moveTo", "lineTo", "quadraticCurveTo", "bezierCurveTo"];
 // stroke or fill commands terminate a shape
 const terminateNames = ["stroke"];  // shape terminates with a stroke command
+const styleNames = ["strokeStyle", "fillStyle"];
 
 let shapes = [];
 let finalTerminateCmds = [];
@@ -56,6 +57,8 @@ class Shape {
         this.drawCmds = [];
         this.preambleCmds = [];
         this.postCmds = [];
+        // only the last one matters so we can use an object keyed on name
+        this.styleCmds = {};
         this.ptIndexOffset = 0;
         this._startedDrawing = false;
     }
@@ -73,6 +76,9 @@ class Shape {
             this.drawpoints.push(...extractDrawpoints(cmd));
         } else if (this._startedDrawing === false) {
             this.preambleCmds.push(cmd);
+            if (styleNames.includes(cmd.name)) {
+                this.styleCmds[cmd.name] = cmd;
+            }
         } else {
             this.postCmds.push(cmd);
             if (terminateNames.includes(cmd.name)) {
@@ -258,9 +264,9 @@ export function determineShapes() {
 
 /**
  * Create DAT.GUI interface
- * @param drawer function for drawing and rendering a SVG url
+ * @param svgToCanvas function for drawing and rendering a SVG url
  */
-export function makeGUI(drawer) {
+export function makeGUI(svgToCanvas) {
 
     gui = generateGUI(gui);
     interactiveModal = makeInteractiveModal();
@@ -283,8 +289,9 @@ export function makeGUI(drawer) {
         reader.onload = function (event) {
             const url = event.target.result;
             clearCapture();
-            drawer(url);
+            svgToCanvas(url);
             determineShapes();
+            interactiveConversion.draw();
         };
 
         reader.readAsDataURL(file);

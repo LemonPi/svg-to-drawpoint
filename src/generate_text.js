@@ -31,6 +31,19 @@ export function generateText(shapes, s) {
         }
 
         text.push("{");
+        // set up style
+        for (let cmd of Object.values(shape.styleCmds)) {
+            // set
+            if (cmd.hasOwnProperty("value")) {
+                text.push(`ctx.${cmd.name} = ${cmd.value}`);
+            } else {
+                // call
+                text.push(`ctx.${cmd.name}(${cmd.args.join(', ')})`);
+            }
+        }
+        text.push('');
+
+        // define points
         for (let i = 0; i < shape.drawpoints.length; ++i) {
             if (shape.fixedPts[i]) {
                 lastFixedPt = shape.drawpoints[i];
@@ -55,6 +68,7 @@ export function generateText(shapes, s) {
             }
         }
 
+        // draw points
         text.push("\nctx.beginPath();");
         text.push(`dp.drawPoints(ctx, ${names.join(', ')});`);
         text.push("ctx.stroke();");
