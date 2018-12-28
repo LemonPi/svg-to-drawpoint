@@ -26,7 +26,7 @@ export function captureContext() {
 
 /**
  * Update the constraint on the order of the drawppoint
- * @param numberDrawpoints
+ * @param numDrawpoints total number of drawpoints for all shapes
  */
 function generateFixedPointGUI(numDrawpoints) {
     if (fixedPointFolder) {
@@ -43,10 +43,46 @@ function generateFixedPointGUI(numDrawpoints) {
 
 // TODO consider the other drawing methods like arc
 const toCaptureNames = ["moveTo", "lineTo", "quadraticCurveTo", "bezierCurveTo"];
-let drawCommands = [];
-let preambleCommands = [];
-let postCommands = [];
-let drawpoints = [];
+// stroke or fill commands terminate a shape
+const terminateNames = ["stroke"];  // shape terminates with a stroke command
+
+let shapes = [];
+let finalTerminateCmds = [];
+
+class Shape {
+    constructor() {
+        this.drawpoints = [];
+        this.fixedPts = [];
+        this.drawCmds = [];
+        this.preambleCmds = [];
+        this.postCmds = [];
+        this.ptIndexOffset = 0;
+        this._startedDrawing = false;
+    }
+
+    /**
+     * Process a draw command
+     * @param cmd
+     * @returns {boolean} Whether this shape's been completed
+     */
+    handleCommand(cmd) {
+        // actual drawing commands are in between pre and post commands
+        if (toCaptureNames.includes(cmd.name)) {
+            this._startedDrawing = true;
+            this.drawCmds.push(cmd);
+            this.drawpoints.push(...extractDrawpoints(cmd));
+        } else if (this._startedDrawing === false) {
+            this.preambleCmds.push(cmd);
+        } else {
+            this.postCmds.push(cmd);
+            if (terminateNames.includes(cmd.name)) {
+                return true;
+            }
+        }
+        return false;
+    }
+}
+
 /**
  * GUI elements for interaction on the side
  */
@@ -56,90 +92,101 @@ const interactiveConversion = {
      * Do most of the main action such as drawing all that needs to be drawn and generating text
      */
     draw() {
-        drawCommands = [];
-        preambleCommands = [];
-        postCommands = [];
-        drawpoints = [];
-
-        let startedDrawing = false;
-
         console.log(ctx.queue);
         for (let cmd of ctx.queue) {
             cmd.execute();
-            // actual drawing commands are in between pre and post commands
-            if (toCaptureNames.includes(cmd.name)) {
-                startedDrawing = true;
-                drawCommands.push(cmd);
-                drawpoints.push(...extractDrawpoints(cmd));
-            } else if (startedDrawing === false) {
-                preambleCommands.push(cmd);
-            } else {
-                postCommands.push(cmd);
-            }
         }
 
-        console.log(drawCommands);
-        console.log(drawpoints);
         // now we have information on what to draw we can add GUI for drawing
+        let totalNumDrawpoints = 0;
+        for (let shape of shapes) {
+            totalNumDrawpoints += shape.drawpoints.length;
+        }
         // assumes each draw command results in one draw point
-        generateFixedPointGUI(drawCommands.length);
+        generateFixedPointGUI(totalNumDrawpoints);
 
         drawFixedPoints();
         displayInteractiveModal();
         this.updateText();
     },
     clear() {
-        const q = ctx.queue;
-        ctx.queue = [];
+        ctx.pauseCapture();
         ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-        ctx.executeAll();
-        ctx.queue = q;
+        ctx.resumeCapture();
     },
     upload() {
         fileUpload.click();
     },
     updateText() {
-        changeInteractiveModalText(generateText(drawpoints, fixedPts, this.scale));
+        changeInteractiveModalText(generateText(shapes, this.scale));
     }
 };
 
 function drawFixedPoints() {
     ctx.pauseCapture();
-    for (let cmd of preambleCommands) {
-        cmd.execute();
-    }
-    ctx.fillStyle = "red";
-    ctx.font = "8px consolas";
-
-    fixedPts.forEach((name, index) => {
-        if (!name) {
-            return;
+    console.log(`${shapes.length} shapes`);
+    for (let s of shapes) {
+        console.log("preamble commands");
+        console.log(s.preambleCmds);
+        for (let cmd of s.preambleCmds) {
+            cmd.execute();
         }
-        const x = drawpoints[index].x;
-        const y = drawpoints[index].y;
-        const s = 1;
-        ctx.fillRect(x-s/2, y-s/2, s, s);
-        ctx.fillText(name, x+2*s, y);
-    });
-    for (let cmd of postCommands) {
+
+        ctx.fillStyle = "red";
+        ctx.font = "8px consolas";
+
+        s.fixedPts.forEach((name, index) => {
+            if (!name) {
+                return;
+            }
+            const x = s.drawpoints[index].x;
+            const y = s.drawpoints[index].y;
+            const l = 1;
+            ctx.fillRect(x - l / 2, y - l / 2, l, l);
+            ctx.fillText(name, x + 2 * l, y);
+        });
+
+        console.log("postamble commands");
+        console.log(s.postCmds);
+        for (let cmd of s.postCmds) {
+            cmd.execute();
+        }
+    }
+    console.log("final terminate commands");
+    console.log(finalTerminateCmds);
+    for (let cmd of finalTerminateCmds) {
         cmd.execute();
     }
     ctx.resumeCapture();
 }
 
-// assume fixed points are given to us (including control points)
-const fixedPts = [];
+/**
+ * Find shape corresponding to (containing)  a global point index
+ * @param i
+ * @returns {(Shape|null)}
+ */
+function findCorrespondingShapeToIndex(i) {
+    for (let shape of shapes) {
+        if (i < shape.ptIndexOffset + shape.drawpoints.length) {
+            return shape;
+        }
+    }
+    return null;
+}
+
 const fixedPointInteraction = {
     order: 0,
     name: "p1",
     add() {
-        fixedPts[this.order] = this.name;
+        const s = findCorrespondingShapeToIndex(this.order);
+        s.fixedPts[this.order - s.ptIndexOffset] = this.name;
         // label on canvas
         interactiveConversion.clear();
         interactiveConversion.draw();
     },
     remove() {
-        fixedPts[this.order] = undefined;
+        const s = findCorrespondingShapeToIndex(this.order);
+        s.fixedPts[this.order - s.ptIndexOffset] = undefined;
         interactiveConversion.clear();
         interactiveConversion.draw();
     }
@@ -174,13 +221,40 @@ function generateGUI(gui) {
     gui.add(interactiveConversion, "upload").name("upload SVG");
     gui.add(interactiveConversion, "draw");
     gui.add(interactiveConversion, "clear");
-    gui.add(interactiveConversion, "scale").min(0).max(3).onChange(function() {
+    gui.add(interactiveConversion, "scale").min(0).max(3).onChange(function () {
         interactiveConversion.updateText();
     });
 
     return gui;
 }
 
+export function determineShapes() {
+    // generate the draw points from the created image
+    shapes = [];
+    let shape = new Shape();
+
+    console.log(ctx.queue);
+    for (let cmd of ctx.queue) {
+        cmd.execute();
+        if (shape.handleCommand(cmd)) {
+            shapes.push(shape);
+            console.log(`Finished shape ${shapes.length}`);
+            console.log(shape.drawCmds);
+            console.log(shape.drawpoints);
+
+            shape = new Shape();
+        }
+    }
+    // the last shape hasn't been pushed because we've only encountered its preamble
+    finalTerminateCmds = shape.preambleCmds;
+
+    // now we have information on what to draw we can add GUI for drawing
+    let totalNumDrawpoints = 0;
+    for (shape of shapes) {
+        shape.ptIndexOffset = totalNumDrawpoints;
+        totalNumDrawpoints += shape.drawpoints.length;
+    }
+}
 
 /**
  * Create DAT.GUI interface
@@ -210,6 +284,7 @@ export function makeGUI(drawer) {
             const url = event.target.result;
             clearCapture();
             drawer(url);
+            determineShapes();
         };
 
         reader.readAsDataURL(file);

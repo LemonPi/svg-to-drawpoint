@@ -1,7 +1,7 @@
 import canvg from 'canvg';
 import SVG from './test.svg';
 import {makeCanvas, makeMainContainer} from "./make_dom";
-import {captureContext, makeGUI} from "./make_gui";
+import {captureContext, determineShapes, makeGUI} from "./make_gui";
 
 
 // TODO use scale input to scale output text
@@ -29,3 +29,4 @@ function drawSVG(svg) {
 
 makeGUI(drawSVG);
 drawSVG(SVG);
+determineShapes();
