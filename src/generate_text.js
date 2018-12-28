@@ -19,7 +19,9 @@ export function generateText(shapes, s) {
     const text = [];
     text.push("import * as dp from 'drawpoint';\n");
 
-    // TODO generate preamble text for setting stroke and fill
+    // we keep track of fixed names
+    const fixedNames = new Set();
+
     let lastFixedPt = null;
     let lastFixedName = null;
     for (let shape of shapes) {
@@ -50,11 +52,16 @@ export function generateText(shapes, s) {
                 lastFixedName = shape.fixedPts[i];
                 text.push(`// ${shape.fixedPts[i]} is a given fixed point`);
                 names.push(shape.fixedPts[i]);
+                fixedNames.add(shape.fixedPts[i]);
             } else {
                 // define both the end point and the control points relative to the last fixed point
                 let d = scale(diff(shape.drawpoints[i], lastFixedPt), s);
                 // name these points starting at p1
                 let name = `p${i + 1}`;
+                // make sure we don't conflict with any fixed points which have global scope
+                while (fixedNames.has(name)) {
+                    name = `p${name}`;
+                }
                 text.push(`const ${name} = dp.point(${lastFixedName}.x ${addNum(d.x)}, ${lastFixedName}.y ${addNum(d.y)});`);
                 names.push(name);
                 if (shape.drawpoints[i].cp1) {
