@@ -3,9 +3,8 @@ import SVG from './test.svg';
 import {captureContext, determineShapes, makeGUI} from "./make_gui";
 
 
-// TODO use scale input to scale output text
 // TODO capture only the position of the points relative to the previous fixed points
-// TODO print results in textArea
+// TODO figure out why the SVGs are inverted (LR and UD)
 
 // ------------ create GUI -------------------
 
