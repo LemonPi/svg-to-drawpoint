@@ -37,10 +37,10 @@ export function generateText(shapes, s) {
         for (let cmd of Object.values(shape.styleCmds)) {
             // set
             if (cmd.hasOwnProperty("value")) {
-                text.push(`ctx.${cmd.name} = ${cmd.value}`);
+                text.push(`ctx.${cmd.name} = "${cmd.value}";`);
             } else {
                 // call
-                text.push(`ctx.${cmd.name}(${cmd.args.join(', ')})`);
+                text.push(`ctx.${cmd.name}(${cmd.args.join(', ')});`);
             }
         }
         text.push('');
