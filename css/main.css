@@ -1,3 +1,19 @@
+.flex_col {
+    display: flex;
+    flex-direction: column;
+}
+.flex_row {
+    display: flex;
+    flex-direction: row;
+}
+#tester {
+    border: 1px solid black;
+}
+#executor {
+    border: 1px solid black;
+    margin-right: 1em;
+}
+
 #interactive_modal {
     visibility: hidden;
     z-index: 999;
@@ -22,4 +38,11 @@
 
 #interactive_modal_top_bar:active {
     background: cadetblue;
+}
+textarea {
+    font: 0.7em Consolas;
+}
+#execute_text {
+    height: 90%;
+    width: 20em;
 }

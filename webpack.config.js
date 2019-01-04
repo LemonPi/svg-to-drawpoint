@@ -9,12 +9,16 @@ module.exports = {
     },
     devtool: 'inline-source-map',
     devServer: {
-        contentBase: './dist'
+        contentBase: [
+            './dist',
+            './node_modules',
+            ]
     },
     plugins: [
         new CleanWebpackPlugin(['dist']),
         new HtmlWebpackPlugin({
-            title: 'SVG to Drawpoint'
+            title: 'SVG to Drawpoint',
+            template: 'src/index.html'
         })
     ],
     optimization: {

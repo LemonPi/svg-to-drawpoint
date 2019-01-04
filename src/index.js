@@ -1,6 +1,5 @@
 import canvg from 'canvg';
 import SVG from './test.svg';
-import {makeCanvas, makeMainContainer} from "./make_dom";
 import {captureContext, determineShapes, makeGUI} from "./make_gui";
 
 
@@ -12,8 +11,8 @@ import {captureContext, determineShapes, makeGUI} from "./make_gui";
 
 captureContext();
 
-const container = document.body.appendChild(makeMainContainer());
-const canvas = container.appendChild(makeCanvas());
+const canvas = document.getElementById("tester");
+
 
 function drawSVG(svg) {
     canvg(canvas,

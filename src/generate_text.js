@@ -17,7 +17,6 @@ export function generateText(shapes, s) {
             "intermediate points named p1, p2, ...";
     }
     const text = [];
-    text.push("import * as dp from 'drawpoint';\n");
 
     // we keep track of fixed names
     const fixedNames = new Set();

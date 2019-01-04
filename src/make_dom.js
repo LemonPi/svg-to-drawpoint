@@ -1,14 +1,5 @@
 import "../css/main.css";
 
-export function makeCanvas() {
-    const canvas = document.createElement('canvas');
-    canvas.id = "tester";
-    canvas.width = 500;
-    canvas.height = 500;
-    canvas.style.border = "1px solid black";
-    return canvas;
-}
-
 let textArea;
 export function makeInteractiveModal() {
     const modal = document.createElement('div');
@@ -45,13 +36,6 @@ export function makeInteractiveModal() {
 
 export function changeInteractiveModalText(textValue) {
     textArea.value = textValue;
-}
-
-export function makeMainContainer() {
-    const div = document.createElement('div');
-    div.style.display = "flex";
-    div.style.flexDirection = "row";
-    return div;
 }
 
 export function makeFileUpload() {

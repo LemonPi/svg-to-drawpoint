@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title><%= htmlWebpackPlugin.options.title %></title>
+    <script type="text/javascript" src="./drawpoint/dist/drawpoint.js"></script>
+</head>
+<body>
+<div id="main_bar" class="flex_col">
+    <canvas id="tester"></canvas>
+    <hr>
+    <h3>Test execution of drawpoint commands</h3>
+    <div class="flex_row">
+        <canvas id="executor" width="640" height="640"></canvas>
+        <div class="flex_col">
+            <h4>Paste code here</h4>
+            <textarea id="execute_text" spellcheck="false"></textarea>
+            <button id="executor_button">Execute</button>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    const dp = drawpoint;
+    const executeText = document.getElementById("execute_text");
+    const executorButton = document.getElementById("executor_button");
+    const canvas = document.getElementById("executor");
+    const ctx = canvas.getContext("2d");
+
+    executorButton.onclick = function() {
+        // console.log(executeText.value);
+        ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+        eval(executeText.value);
+    };
+</script>
+</body>
+</html>
