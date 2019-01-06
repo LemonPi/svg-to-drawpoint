@@ -174,8 +174,9 @@ function drawFixedPoints() {
             if (!name) {
                 return;
             }
-            const x = s.drawpoints[index].x;
-            const y = s.drawpoints[index].y;
+            const fp = s.tsf.inverse().applyToPoint(s.drawpoints[index].x, s.drawpoints[index].y);
+            const x = fp.x;
+            const y = fp.y;
             const l = 1;
             ctx.fillRect(x - l / 2, y - l / 2, l, l);
             ctx.fillText(name, x + 2 * l, y);
