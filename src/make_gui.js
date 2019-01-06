@@ -99,19 +99,17 @@ class Shape {
      * Adjust its drawpoints by applying the captured transform
      * so that the resulting drawpoints don't have to transformed again at draw time
      */
-    applyTransform() {
+    applyTransform(tsf) {
         // TODO allow user specification of transformation matrix to adjust again while preserving what the output is
-        this.tsf.flipX();
-        this.tsf.flipY();
 
         for (let pt of this.drawpoints) {
             if (pt.cp1) {
-                pt.cp1 = this.tsf.applyToPoint(pt.cp1.x, pt.cp1.y);
+                pt.cp1 = tsf.applyToPoint(pt.cp1.x, pt.cp1.y);
             }
             if (pt.cp2) {
-                pt.cp2 = this.tsf.applyToPoint(pt.cp2.x, pt.cp2.y);
+                pt.cp2 = tsf.applyToPoint(pt.cp2.x, pt.cp2.y);
             }
-            const newPt = this.tsf.applyToPoint(pt.x, pt.y);
+            const newPt = tsf.applyToPoint(pt.x, pt.y);
             pt.x = newPt.x;
             pt.y = newPt.y;
         }
@@ -284,12 +282,17 @@ export function determineShapes() {
     // the last shape hasn't been pushed because we've only encountered its preamble
     finalTerminateCmds = shape.preambleCmds;
 
+    // seems like the transformations for all shapes is defined on just the first shape
+    const tsf = shapes[0].tsf;
+    tsf.flipX();
+    tsf.flipY();
+
     // now we have information on what to draw we can add GUI for drawing
     let totalNumDrawpoints = 0;
     for (shape of shapes) {
         shape.ptIndexOffset = totalNumDrawpoints;
         totalNumDrawpoints += shape.drawpoints.length;
-        shape.applyTransform();
+        shape.applyTransform(tsf);
     }
 }
 

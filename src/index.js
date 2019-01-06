@@ -1,5 +1,5 @@
 import canvg from 'canvg';
-import SVG from './test.svg';
+import SVG from './test2.svg';
 import {captureContext, determineShapes, makeGUI} from "./make_gui";
 import {changeExecutedText} from "./make_dom";
 
