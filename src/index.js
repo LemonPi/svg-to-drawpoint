@@ -1,6 +1,7 @@
 import canvg from 'canvg';
 import SVG from './test.svg';
 import {captureContext, determineShapes, makeGUI} from "./make_gui";
+import {changeExecutedText} from "./make_dom";
 
 
 // TODO capture only the position of the points relative to the previous fixed points
@@ -11,6 +12,10 @@ import {captureContext, determineShapes, makeGUI} from "./make_gui";
 captureContext();
 
 const canvas = document.getElementById("tester");
+const fixedPtDef = document.getElementById("fixedpoint_text");
+fixedPtDef.oninput = function() {
+    changeExecutedText();
+};
 
 
 function drawSVG(svg) {
@@ -28,3 +33,4 @@ function drawSVG(svg) {
 makeGUI(drawSVG);
 drawSVG(SVG);
 determineShapes();
+
