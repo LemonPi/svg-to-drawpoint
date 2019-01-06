@@ -3,6 +3,7 @@ import capture from "call-capture";
 import {changeInteractiveModalText, makeFileUpload, makeInteractiveModal} from "./make_dom";
 import {extractDrawpoints} from "./extract_drawpoint";
 import {generateText} from "./generate_text";
+import {Matrix} from "transformation-matrix-js";
 
 // captured drawing context
 // each canvas can only have 1 active drawing context, so it's safe to assume there'll only be 1
@@ -35,7 +36,8 @@ function generateFixedPointGUI(numDrawpoints) {
 
     fixedPointFolder = gui.addFolder("add fixed point");
     // constrain order when we know how many drawpoints exist
-    fixedPointOrder = fixedPointFolder.add(fixedPointInteraction, "order").min(0).max(numDrawpoints - 1).step(1);
+    fixedPointOrder =
+        fixedPointFolder.add(fixedPointInteraction, "order").min(0).max(numDrawpoints - 1).step(1);
     fixedPointFolder.add(fixedPointInteraction, "name");
     fixedPointFolder.add(fixedPointInteraction, "add");
     fixedPointFolder.add(fixedPointInteraction, "remove");
@@ -60,6 +62,7 @@ class Shape {
         // only the last one matters so we can use an object keyed on name
         this.styleCmds = {};
         this.ptIndexOffset = 0;
+        this.tsf = new Matrix();
         this._startedDrawing = false;
     }
 
@@ -76,7 +79,11 @@ class Shape {
             this.drawpoints.push(...extractDrawpoints(cmd));
         } else if (this._startedDrawing === false) {
             this.preambleCmds.push(cmd);
-            if (styleNames.includes(cmd.name)) {
+            if (cmd.name === "scale") {
+                this.tsf.scale(...cmd.args);
+            } else if (cmd.name === "translate") {
+                this.tsf.translate(...cmd.args);
+            } else if (styleNames.includes(cmd.name)) {
                 this.styleCmds[cmd.name] = cmd;
             }
         } else {
@@ -86,6 +93,28 @@ class Shape {
             }
         }
         return false;
+    }
+
+    /**
+     * Adjust its drawpoints by applying the captured transform
+     * so that the resulting drawpoints don't have to transformed again at draw time
+     */
+    applyTransform() {
+        // TODO allow user specification of transformation matrix to adjust again while preserving what the output is
+        this.tsf.flipX();
+        this.tsf.flipY();
+
+        for (let pt of this.drawpoints) {
+            if (pt.cp1) {
+                pt.cp1 = this.tsf.applyToPoint(pt.cp1.x, pt.cp1.y);
+            }
+            if (pt.cp2) {
+                pt.cp2 = this.tsf.applyToPoint(pt.cp2.x, pt.cp2.y);
+            }
+            const newPt = this.tsf.applyToPoint(pt.x, pt.y);
+            pt.x = newPt.x;
+            pt.y = newPt.y;
+        }
     }
 }
 
@@ -182,7 +211,7 @@ function findCorrespondingShapeToIndex(i) {
 
 const fixedPointInteraction = {
     order: 0,
-    name: "p1",
+    name : "p1",
     add() {
         const s = findCorrespondingShapeToIndex(this.order);
         s.fixedPts[this.order - s.ptIndexOffset] = this.name;
@@ -259,6 +288,7 @@ export function determineShapes() {
     for (shape of shapes) {
         shape.ptIndexOffset = totalNumDrawpoints;
         totalNumDrawpoints += shape.drawpoints.length;
+        shape.applyTransform();
     }
 }
 
